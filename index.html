@@ -3,16 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fixify - All Services, One Place</title>
+    <title>Fixify - Global Service & Financial Hub</title>
     <style>
         :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --text-color: #f8fafc;
+            --bg-color: #0b0f19;
+            --card-bg: #131b2e;
+            --text-color: #f1f5f9;
             --text-muted: #94a3b8;
             --primary: #3b82f6;
             --accent: #10b981;
-            --border: #334155;
+            --danger: #ef4444;
+            --border: #1e293b;
         }
         body.light-mode {
             --bg-color: #f8fafc;
@@ -21,6 +22,433 @@
             --text-muted: #64748b;
             --primary: #2563eb;
             --accent: #059669;
+            --danger: #dc2626;
+            --border: #e2e8f0;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-color); min-height: 100vh; display: flex; flex-direction: column; transition: background 0.3s, color 0.3s; }
+        
+        /* Auth Screen (Login / Sign Up) */
+        #auth-screen { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-color); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .auth-card { background: var(--card-bg); border: 1px solid var(--border); width: 100%; max-width: 400px; border-radius: 16px; padding: 24px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.4); }
+        .auth-logo { text-align: center; margin-bottom: 20px; }
+        .auth-logo h1 { font-size: 22px; color: var(--primary); font-weight: 800; }
+        .auth-logo p { font-size: 12px; color: var(--text-muted); }
+        .auth-tabs { display: flex; margin-bottom: 16px; border-bottom: 1px solid var(--border); }
+        .auth-tab { flex: 1; text-align: center; padding: 10px; font-size: 13px; font-weight: 600; cursor: pointer; color: var(--text-muted); border-bottom: 2px solid transparent; }
+        .auth-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+        /* Main App Wrapper (Hidden until login) */
+        #app-wrapper { display: none; flex-direction: column; min-height: 100vh; }
+
+        /* Header */
+        header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background-color: var(--card-bg); border-bottom: 1px solid var(--border); }
+        .logo-area { display: flex; align-items: center; gap: 12px; }
+        .logo-badge { background: linear-gradient(135deg, #3b82f6, #6366f1); color: #fff; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-weight: 800; border-radius: 10px; font-size: 18px; box-shadow: 0 4px 12px rgba(59,130,246,0.3); }
+        .logo-text h1 { font-size: 17px; font-weight: 700; letter-spacing: 0.5px; }
+        .logo-text p { font-size: 11px; color: var(--text-muted); }
+        .header-right { display: flex; align-items: center; gap: 10px; }
+        .fee-badge { background: rgba(16, 185, 129, 0.15); color: var(--accent); padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+        .theme-toggle { background: var(--border); border: none; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; color: var(--text-color); }
+
+        /* Main Container */
+        .main-container { flex: 1; padding: 20px; padding-bottom: 90px; max-width: 600px; width: 100%; margin: 0 auto; }
+        .section-content { display: none; }
+        .section-content.active { display: block; }
+
+        /* Cards & UI */
+        .card { background-color: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 18px; margin-bottom: 14px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .card h3 { font-size: 15px; margin-bottom: 6px; color: var(--text-color); }
+        .card p { font-size: 13px; color: var(--text-muted); }
+
+        .location-banner { background: linear-gradient(135deg, #059669, #10b981); color: #fff; border-radius: 12px; padding: 14px 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 600; }
+        
+        .finance-card { background: linear-gradient(135deg, #1e3a8a, #3b82f6); color: #fff; border-radius: 14px; padding: 20px; margin-bottom: 16px; box-shadow: 0 10px 25px -5px rgba(59,130,246,0.4); }
+        .finance-card h4 { font-size: 11px; opacity: 0.85; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .finance-row { display: flex; justify-content: space-between; align-items: center; font-size: 20px; font-weight: 800; margin-bottom: 15px; }
+        .wallet-actions { display: flex; gap: 10px; }
+        .wallet-btn { flex: 1; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: #fff; padding: 10px; border-radius: 8px; font-weight: 600; cursor: pointer; text-align: center; font-size: 13px; transition: 0.2s; }
+        .wallet-btn:hover { background: rgba(255,255,255,0.3); }
+
+        .search-bar { width: 100%; padding: 12px 16px; border-radius: 10px; border: 1px solid var(--border); background: var(--card-bg); color: var(--text-color); margin-bottom: 16px; font-size: 14px; outline: none; }
+        .search-bar:focus { border-color: var(--primary); }
+
+        /* Modals */
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; backdrop-filter: blur(4px); }
+        .modal-box { background: var(--card-bg); border: 1px solid var(--border); width: 100%; max-width: 450px; border-radius: 16px; padding: 24px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3); max-height: 90vh; overflow-y: auto; }
+        .modal-box h2 { font-size: 18px; margin-bottom: 15px; color: var(--primary); display: flex; justify-content: space-between; align-items: center; }
+        .close-modal { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-muted); }
+        
+        .form-group { margin-bottom: 14px; }
+        .form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; }
+        .form-control { width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-color); color: var(--text-color); font-size: 14px; outline: none; }
+        .form-control:focus { border-color: var(--primary); }
+        
+        .btn-submit { width: 100%; background: var(--primary); color: #fff; border: none; padding: 12px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 14px; margin-top: 10px; }
+        .btn-submit:hover { opacity: 0.9; }
+
+        .category-group { margin-bottom: 18px; }
+        .category-group h4 { font-size: 12px; color: var(--primary); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; }
+        .grid-categories { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .cat-item { background: var(--card-bg); border: 1px solid var(--border); padding: 12px; border-radius: 10px; text-align: center; cursor: pointer; font-size: 12px; font-weight: 600; transition: 0.2s; color: var(--text-color); }
+        .cat-item:hover { border-color: var(--primary); background: rgba(59, 130, 246, 0.05); }
+
+        .tx-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+        .tx-item:last-child { border-bottom: none; }
+        .tx-info span { display: block; font-size: 11px; color: var(--text-muted); }
+        .tx-amount.success { color: var(--accent); font-weight: 700; }
+        .tx-amount.pending { color: #f59e0b; font-weight: 700; }
+
+        /* Bottom Nav */
+        nav.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background-color: var(--card-bg); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 10px 0; z-index: 100; }
+        .nav-item { background: none; border: none; display: flex; flex-direction: column; align-items: center; color: var(--text-muted); font-size: 11px; cursor: pointer; }
+        .nav-item.active { color: var(--primary); font-weight: 600; }
+        .nav-item span.icon { font-size: 18px; margin-bottom: 2px; }
+    </style>
+</head>
+<body>
+
+    <div id="auth-screen">
+        <div class="auth-card">
+            <div class="auth-logo">
+                <h1>Fixify Global</h1>
+                <p>All Services. One Place.</p>
+            </div>
+            <div class="auth-tabs">
+                <div class="auth-tab active" id="tab-login" onclick="switchAuthMode('login')">Login</div>
+                <div class="auth-tab" id="tab-signup" onclick="switchAuthMode('signup')">Sign Up</div>
+            </div>
+            
+            <form id="authForm" onsubmit="handleAuthSubmit(event)">
+                <div class="form-group" id="nameGroup" style="display: none;">
+                    <label>Full Name</label>
+                    <input type="text" id="authName" class="form-control" placeholder="Enter your full name">
+                </div>
+                <div class="form-group" id="roleGroup" style="display: none;">
+                    <label>I want to join as</label>
+                    <select class="form-control" id="authRole">
+                        <option value="client">Client (Hire Professionals)</option>
+                        <option value="provider">Service Provider / Worker</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="authEmail" class="form-control" placeholder="name@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="authPass" class="form-control" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn-submit" id="authSubmitBtn">Login to Fixify</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="app-wrapper">
+        <header>
+            <div class="logo-area">
+                <div class="logo-badge">FX</div>
+                <div class="logo-text">
+                    <h1>Fixify Global</h1>
+                    <p>Secure Escrow & Services</p>
+                </div>
+            </div>
+            <div class="header-right">
+                <span class="fee-badge">8% Fee Active</span>
+                <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Theme">☀️</button>
+            </div>
+        </header>
+
+        <div class="main-container">
+
+            <div id="tab-explore" class="section-content active">
+                <div class="location-banner">
+                    <span>📍 Near Me: Showing active workers in your region</span>
+                    <span id="user-location-tag" style="background: rgba(0,0,0,0.2); padding: 3px 8px; border-radius: 4px; font-size: 11px;">Auto-Detected</span>
+                </div>
+
+                <input type="text" class="search-bar" placeholder="Search local electricians, plumbers, developers near you...">
+                
+                <div class="finance-card">
+                    <h4>Main Balance & Escrow</h4>
+                    <div class="finance-row">
+                        <span id="wallet-balance">$1,700.00</span>
+                        <span style="font-size: 13px; background: rgba(255,255,255,0.15); padding: 4px 8px; border-radius: 6px;">Escrow: $130.00</span>
+                    </div>
+                    <div class="wallet-actions">
+                        <button class="wallet-btn" onclick="openModal('depositModal')">➕ Deposit</button>
+                        <button class="wallet-btn" onclick="openModal('withdrawModal')">➖ Withdraw</button>
+                    </div>
+                </div>
+
+                <h3 style="margin-bottom: 10px; font-size: 15px;">Verified Workers Near You</h3>
+                <div class="card">
+                    <h3>Rafiq Ahmed (Senior Electrician)</h3>
+                    <p>📍 1.2 km away • Rating: ⭐ 4.9 (140 jobs done)</p>
+                    <button class="wallet-btn" style="background: var(--primary); margin-top: 10px; width: 100%;" onclick="alert('Connecting with Rafiq Ahmed directly...')">Contact Nearby Provider</button>
+                </div>
+                <div class="card">
+                    <h3>Tanvir Hasan (Expert Plumber & Pipe Fitter)</h3>
+                    <p>📍 2.5 km away • Rating: ⭐ 4.8 (98 jobs done)</p>
+                    <button class="wallet-btn" style="background: var(--primary); margin-top: 10px; width: 100%;" onclick="alert('Connecting with Tanvir Hasan directly...')">Contact Nearby Provider</button>
+                </div>
+            </div>
+
+            <div id="tab-industries" class="section-content">
+                <h3 style="margin-bottom: 14px;">Global Professions & Categories</h3>
+                <div class="category-group">
+                    <h4>Home & Maintenance</h4>
+                    <div class="grid-categories">
+                        <div class="cat-item">⚡ Electrician</div>
+                        <div class="cat-item">🔧 Plumber</div>
+                        <div class="cat-item">🧹 Cleaner</div>
+                        <div class="cat-item">❄️ AC Technician</div>
+                    </div>
+                </div>
+                <div class="category-group">
+                    <h4>Technology & IT</h4>
+                    <div class="grid-categories">
+                        <div class="cat-item">💻 Software Dev</div>
+                        <div class="cat-item">🌐 Web Developer</div>
+                        <div class="cat-item">🎨 UI/UX Designer</div>
+                        <div class="cat-item">☁️ Cloud Engineer</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-jobs" class="section-content">
+                <h3 style="margin-bottom: 14px;">Active Bids & Escrow Projects</h3>
+                <div class="card">
+                    <h3>Mobile App Architecture Design</h3>
+                    <p>Budget: $1,200 • Status: In Progress (Secured in Escrow)</p>
+                </div>
+            </div>
+
+            <div id="tab-messages" class="section-content">
+                <h3 style="margin-bottom: 14px;">Secure Communications</h3>
+                <div class="card">
+                    <h3>Rafiq Ahmed (Electrician)</h3>
+                    <p>Latest: "I am nearby your location. Can I visit in 20 minutes?"</p>
+                </div>
+            </div>
+
+            <div id="tab-profile" class="section-content">
+                <div class="card" style="text-align: center; background: linear-gradient(135deg, var(--primary), #1e40af); color: #fff;">
+                    <h3 id="profile-display-name" style="font-size: 18px;">MD Rayhan Hossain</h3>
+                    <p id="profile-display-title" style="color: #e2e8f0; font-size: 12px;">Global Service Administrator</p>
+                </div>
+
+                <div class="card" onclick="openModal('kycModal')" style="cursor: pointer; border-left: 4px solid var(--accent);">
+                    <h3>🛡️ ID Verification (KYC)</h3>
+                    <p id="kyc-status-text">Status: Verified (Passport / NID Submitted)</p>
+                </div>
+
+                <div class="card" onclick="openModal('editProfileModal')" style="cursor: pointer;">
+                    <h3>✏️ Customize Profile</h3>
+                    <p>Edit your name, professional title, bio & avatar</p>
+                </div>
+
+                <div class="card" onclick="openModal('settingsModal')" style="cursor: pointer;">
+                    <h3>⚙️ Account Settings</h3>
+                    <p>Manage notifications, privacy, region & security preferences</p>
+                </div>
+
+                <div class="card">
+                    <h3>📊 Transaction History</h3>
+                    <div id="tx-history-list" style="margin-top: 8px;">
+                        <div class="tx-item">
+                            <div class="tx-info">Deposit via bKash (Bangladesh)<span>Aug 28, 2026</span></div>
+                            <div class="tx-amount success">+$250.00</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" onclick="handleLogout()" style="cursor: pointer; border-color: var(--danger);">
+                    <h3 style="color: var(--danger);">🚪 Logout</h3>
+                    <p>End current active secure session</p>
+                </div>
+            </div>
+
+        </div>
+
+        <nav class="bottom-nav">
+            <button class="nav-item active" onclick="switchTab('explore', this)"><span class="icon">🌍</span>Explore</button>
+            <button class="nav-item" onclick="switchTab('industries', this)"><span class="icon">📂</span>Industries</button>
+            <button class="nav-item" onclick="switchTab('jobs', this)"><span class="icon">💼</span>Jobs</button>
+            <button class="nav-item" onclick="switchTab('messages', this)"><span class="icon">💬</span>Messages</button>
+            <button class="nav-item" onclick="switchTab('profile', this)"><span class="icon">👤</span>Profile</button>
+        </nav>
+    </div>
+
+    <div id="editProfileModal" class="modal-overlay">
+        <div class="modal-box">
+            <h2>Customize Profile <button class="close-modal" onclick="closeModal('editProfileModal')">&times;</button></h2>
+            <form onsubmit="handleSaveProfile(event)">
+                <div class="form-group"><label>Full Name</label><input type="text" id="inputName" class="form-control" value="MD Rayhan Hossain" required></div>
+                <div class="form-group"><label>Professional Title</label><input type="text" id="inputTitle" class="form-control" value="Global Service Administrator & Provider" required></div>
+                <button type="submit" class="btn-submit">Save Profile</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="kycModal" class="modal-overlay">
+        <div class="modal-box">
+            <h2>ID Verification (KYC) <button class="close-modal" onclick="closeModal('kycModal')">&times;</button></h2>
+            <form onsubmit="handleKycSubmit(event)">
+                <div class="form-group">
+                    <label>Document Type</label>
+                    <select class="form-control" id="docType"><option value="Passport">Passport</option><option value="NID">National ID Card</option><option value="DrivingLicense">Driving License</option></select>
+                </div>
+                <div class="form-group"><label>Document Number</label><input type="text" class="form-control" placeholder="Enter ID number" required></div>
+                <button type="submit" class="btn-submit">Upload Documents</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="settingsModal" class="modal-overlay">
+        <div class="modal-box">
+            <h2>Settings <button class="close-modal" onclick="closeModal('settingsModal')">&times;</button></h2>
+            <form onsubmit="handleSettingsSave(event)">
+                <div class="form-group">
+                    <label>Currency</label>
+                    <select class="form-control"><option value="USD">USD ($)</option><option value="BDT">BDT (৳)</option><option value="EUR">EUR (€)</option><option value="AED">AED (د.إ)</option></select>
+                </div>
+                <button type="submit" class="btn-submit">Save Settings</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="depositModal" class="modal-overlay">
+        <div class="modal-box">
+            <h2>Deposit Funds <button class="close-modal" onclick="closeModal('depositModal')">&times;</button></h2>
+            <form onsubmit="handleDeposit(event)">
+                <div class="form-group"><label>Amount ($10 - $9,999)</label><input type="number" id="depositAmount" class="form-control" min="10" max="9999" required></div>
+                <button type="submit" class="btn-submit">Confirm Deposit</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="withdrawModal" class="modal-overlay">
+        <div class="modal-box">
+            <h2>Withdraw Funds <button class="close-modal" onclick="closeModal('withdrawModal')">&times;</button></h2>
+            <form onsubmit="handleWithdraw(event)">
+                <div class="form-group"><label>Amount ($25 - $1,000)</label><input type="number" id="withdrawAmount" class="form-control" min="25" max="1000" required></div>
+                <button type="submit" class="btn-submit">Confirm Withdrawal</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let currentAuthMode = 'login';
+
+        function switchAuthMode(mode) {
+            currentAuthMode = mode;
+            document.getElementById('tab-login').classList.toggle('active', mode === 'login');
+            document.getElementById('tab-signup').classList.toggle('active', mode === 'signup');
+            document.getElementById('nameGroup').style.display = mode === 'signup' ? 'block' : 'none';
+            document.getElementById('roleGroup').style.display = mode === 'signup' ? 'block' : 'none';
+            document.getElementById('authSubmitBtn').textContent = mode === 'login' ? 'Login to Fixify' : 'Create Account';
+        }
+
+        function handleAuthSubmit(event) {
+            event.preventDefault();
+            const email = document.getElementById('authEmail').value;
+            if(currentAuthMode === 'signup') {
+                const name = document.getElementById('authName').value;
+                document.getElementById('profile-display-name').textContent = name;
+                alert('Account created successfully! Welcome to Fixify.');
+            } else {
+                alert('Login successful! Welcome back.');
+            }
+            document.getElementById('auth-screen').style.display = 'none';
+            document.getElementById('app-wrapper').style.display = 'flex';
+        }
+
+        function handleLogout() {
+            if(confirm('Are you sure you want to log out?')) {
+                document.getElementById('app-wrapper').style.display = 'none';
+                document.getElementById('auth-screen').style.display = 'flex';
+            }
+        }
+
+        function switchTab(tabId, element) {
+            document.querySelectorAll('.section-content').forEach(el => el.classList.remove('active'));
+            document.getElementById('tab-' + tabId).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+            window.scrollTo(0,0);
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+            const btn = document.querySelector('.theme-toggle');
+            btn.textContent = document.body.classList.contains('light-mode') ? '🌙' : '☀️';
+        }
+
+        function openModal(modalId) { document.getElementById(modalId).style.display = 'flex'; }
+        function closeModal(modalId) { document.getElementById(modalId).style.display = 'none'; }
+
+        function handleSaveProfile(event) {
+            event.preventDefault();
+            document.getElementById('profile-display-name').textContent = document.getElementById('inputName').value;
+            document.getElementById('profile-display-title').textContent = document.getElementById('inputTitle').value;
+            alert('Profile updated successfully!');
+            closeModal('editProfileModal');
+        }
+
+        function handleKycSubmit(event) {
+            event.preventDefault();
+            alert('Verification documents uploaded successfully.');
+            closeModal('kycModal');
+        }
+
+        function handleSettingsSave(event) {
+            event.preventDefault();
+            alert('Settings saved.');
+            closeModal('settingsModal');
+        }
+
+        function handleDeposit(event) {
+            event.preventDefault();
+            const amt = parseFloat(document.getElementById('depositAmount').value);
+            alert('Deposit of $' + amt + ' successful!');
+            closeModal('depositModal');
+        }
+
+        function handleWithdraw(event) {
+            event.preventDefault();
+            const amt = parseFloat(document.getElementById('withdrawAmount').value);
+            alert('Withdrawal of $' + amt + ' requested.');
+            closeModal('withdrawModal');
+        }
+    </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fixify - Global Service & Financial Hub</title>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: #131b2e;
+            --text-color: #f1f5f9;
+            --text-muted: #94a3b8;
+            --primary: #3b82f6;
+            --accent: #10b981;
+            --danger: #ef4444;
+            --border: #1e293b;
+        }
+        body.light-mode {
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-color: #0f172a;
+            --text-muted: #64748b;
+            --primary: #2563eb;
+            --accent: #059669;
+            --danger: #dc2626;
             --border: #e2e8f0;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -28,35 +456,60 @@
         
         /* Header */
         header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background-color: var(--card-bg); border-bottom: 1px solid var(--border); }
-        .logo-area { display: flex; align-items: center; gap: 10px; }
-        .logo-icon { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: #fff; padding: 8px 12px; font-weight: bold; border-radius: 8px; font-size: 16px; }
-        .logo-text h1 { font-size: 18px; font-weight: 700; }
+        .logo-area { display: flex; align-items: center; gap: 12px; }
+        .logo-badge { background: linear-gradient(135deg, #3b82f6, #6366f1); color: #fff; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-weight: 800; border-radius: 10px; font-size: 18px; box-shadow: 0 4px 12px rgba(59,130,246,0.3); }
+        .logo-text h1 { font-size: 17px; font-weight: 700; letter-spacing: 0.5px; }
         .logo-text p { font-size: 11px; color: var(--text-muted); }
-        .header-right { display: flex; align-items: center; gap: 12px; }
-        .fee-badge { background: rgba(16, 185, 129, 0.1); color: var(--accent); padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; }
-        .theme-toggle { background: none; border: none; font-size: 18px; cursor: pointer; }
+        .header-right { display: flex; align-items: center; gap: 10px; }
+        .fee-badge { background: rgba(16, 185, 129, 0.15); color: var(--accent); padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+        .theme-toggle { background: var(--border); border: none; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; color: var(--text-color); }
 
-        /* Main Content Container */
-        .main-container { flex: 1; padding: 20px; padding-bottom: 80px; max-width: 600px; width: 100%; margin: 0 auto; }
+        /* Main Container */
+        .main-container { flex: 1; padding: 20px; padding-bottom: 90px; max-width: 600px; width: 100%; margin: 0 auto; }
         .section-content { display: none; }
         .section-content.active { display: block; }
 
         /* Cards & UI elements */
-        .card { background-color: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-        .card h3 { font-size: 16px; margin-bottom: 6px; }
+        .card { background-color: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 18px; margin-bottom: 14px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .card h3 { font-size: 15px; margin-bottom: 6px; color: var(--text-color); }
         .card p { font-size: 13px; color: var(--text-muted); }
 
-        .finance-card { background: linear-gradient(135deg, #065f46, #047857); color: #fff; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
-        .finance-card h4 { font-size: 12px; opacity: 0.9; text-transform: uppercase; margin-bottom: 8px; }
-        .finance-row { display: flex; justify-content: space-between; font-size: 18px; font-weight: bold; }
+        .finance-card { background: linear-gradient(135deg, #1e3a8a, #3b82f6); color: #fff; border-radius: 14px; padding: 20px; margin-bottom: 16px; box-shadow: 0 10px 25px -5px rgba(59,130,246,0.4); }
+        .finance-card h4 { font-size: 11px; opacity: 0.85; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .finance-row { display: flex; justify-content: space-between; align-items: center; font-size: 20px; font-weight: 800; margin-bottom: 15px; }
+        .wallet-actions { display: flex; gap: 10px; }
+        .wallet-btn { flex: 1; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: #fff; padding: 10px; border-radius: 8px; font-weight: 600; cursor: pointer; text-align: center; font-size: 13px; transition: 0.2s; }
+        .wallet-btn:hover { background: rgba(255,255,255,0.3); }
 
-        .search-bar { width: 100%; padding: 12px 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); color: var(--text-color); margin-bottom: 16px; font-size: 14px; }
+        .search-bar { width: 100%; padding: 12px 16px; border-radius: 10px; border: 1px solid var(--border); background: var(--card-bg); color: var(--text-color); margin-bottom: 16px; font-size: 14px; outline: none; }
+        .search-bar:focus { border-color: var(--primary); }
+
+        /* Modals */
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; backdrop-filter: blur(4px); }
+        .modal-box { background: var(--card-bg); border: 1px solid var(--border); width: 100%; max-width: 450px; border-radius: 16px; padding: 24px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3); max-height: 90vh; overflow-y: auto; }
+        .modal-box h2 { font-size: 18px; margin-bottom: 15px; color: var(--primary); display: flex; justify-content: space-between; align-items: center; }
+        .close-modal { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-muted); }
+        
+        .form-group { margin-bottom: 14px; }
+        .form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; }
+        .form-control { width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-color); color: var(--text-color); font-size: 14px; outline: none; }
+        .form-control:focus { border-color: var(--primary); }
+        
+        .btn-submit { width: 100%; background: var(--primary); color: #fff; border: none; padding: 12px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 14px; margin-top: 10px; }
+        .btn-submit:hover { opacity: 0.9; }
 
         .category-group { margin-bottom: 18px; }
-        .category-group h4 { font-size: 13px; color: var(--primary); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .category-group h4 { font-size: 12px; color: var(--primary); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; }
         .grid-categories { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-        .cat-item { background: var(--card-bg); border: 1px solid var(--border); padding: 12px; border-radius: 10px; text-align: center; cursor: pointer; font-size: 12px; font-weight: 600; transition: 0.2s; }
+        .cat-item { background: var(--card-bg); border: 1px solid var(--border); padding: 12px; border-radius: 10px; text-align: center; cursor: pointer; font-size: 12px; font-weight: 600; transition: 0.2s; color: var(--text-color); }
         .cat-item:hover { border-color: var(--primary); background: rgba(59, 130, 246, 0.05); }
+
+        /* Transaction List */
+        .tx-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+        .tx-item:last-child { border-bottom: none; }
+        .tx-info span { display: block; font-size: 11px; color: var(--text-muted); }
+        .tx-amount.success { color: var(--accent); font-weight: 700; }
+        .tx-amount.pending { color: #f59e0b; font-weight: 700; }
 
         /* Bottom Nav */
         nav.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background-color: var(--card-bg); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 10px 0; z-index: 100; }
@@ -70,238 +523,258 @@
     <!-- Header -->
     <header>
         <div class="logo-area">
-            <div class="logo-icon">FX</div>
+            <div class="logo-badge">FX</div>
             <div class="logo-text">
-                <h1>Fixify</h1>
-                <p>All Services. One Place.</p>
+                <h1>Fixify Global</h1>
+                <p>Secure Escrow & Services</p>
             </div>
         </div>
         <div class="header-right">
             <span class="fee-badge">8% Fee Active</span>
-            <button class="theme-toggle" onclick="toggleTheme()">☀️</button>
+            <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Theme">☀️</button>
         </div>
     </header>
 
-    <!-- Main Container for Tabs -->
+    <!-- Main Container -->
     <div class="main-container">
 
-        <!-- 1. EXPLORE / HOME TAB -->
+        <!-- 1. EXPLORE TAB -->
         <div id="tab-explore" class="section-content active">
-            <input type="text" class="search-bar" placeholder="Search global services (e.g., Electrician, Doctor, Lawyer)...">
+            <input type="text" class="search-bar" placeholder="Search global services or professionals...">
+            
             <div class="finance-card">
-                <h4>Financial Activity Ledger (8% Fee Active)</h4>
+                <h4>Main Balance & Escrow</h4>
                 <div class="finance-row">
-                    <span>Total Deposits: $1,700.00</span>
-                    <span>Escrow: $130.00</span>
+                    <span id="wallet-balance">$1,700.00</span>
+                    <span style="font-size: 13px; background: rgba(255,255,255,0.15); padding: 4px 8px; border-radius: 6px;">Escrow: $130.00</span>
+                </div>
+                <div class="wallet-actions">
+                    <button class="wallet-btn" onclick="openModal('depositModal')">➕ Deposit</button>
+                    <button class="wallet-btn" onclick="openModal('withdrawModal')">➖ Withdraw</button>
                 </div>
             </div>
-            <h3 style="margin-bottom: 10px; font-size: 15px;">Featured Global Professionals</h3>
+
+            <h3 style="margin-bottom: 10px; font-size: 15px;">Featured Verified Experts</h3>
             <div class="card">
                 <h3>Elena Rostova (UI/UX Designer)</h3>
-                <p>"I have built 12+ fintech apps in Figma. Check my portfolio!"</p>
-            </div>
-            <div class="card">
-                <h3>Dr. Aris Thorne (Psychologist & Therapist)</h3>
-                <p>Available for online international consultations and mental wellness sessions.</p>
-            </div>
-            <div class="card">
-                <h3>Marcus Vance (Senior Electrician & HVAC Tech)</h3>
-                <p>Available for emergency domestic & commercial repair services.</p>
+                <p>"Specialized in luxury fintech and SaaS applications."</p>
             </div>
         </div>
 
-        <!-- 2. INDUSTRIES / CATEGORIES TAB -->
+        <!-- 2. INDUSTRIES TAB -->
         <div id="tab-industries" class="section-content">
-            <h3 style="margin-bottom: 14px;">All Global Professions & Categories</h3>
-            
+            <h3 style="margin-bottom: 14px;">Global Professions & Categories</h3>
             <div class="category-group">
                 <h4>Home & Maintenance</h4>
                 <div class="grid-categories">
                     <div class="cat-item">⚡ Electrician</div>
                     <div class="cat-item">🔧 Plumber</div>
                     <div class="cat-item">🧹 Cleaner</div>
-                    <div class="cat-item">🪚 Carpenter</div>
-                    <div class="cat-item">🎨 Painter</div>
                     <div class="cat-item">❄️ AC Technician</div>
-                    <div class="cat-item">🛠️ Appliance Repair</div>
-                    <div class="cat-item">🔨 Handyman</div>
                 </div>
             </div>
-
-            <div class="category-group">
-                <h4>Health, Wellness & Fitness</h4>
-                <div class="grid-categories">
-                    <div class="cat-item">🩺 Doctor</div>
-                    <div class="cat-item">🧠 Psychologist</div>
-                    <div class="cat-item">🧘 Yoga Instructor</div>
-                    <div class="cat-item">💪 Fitness Trainer</div>
-                    <div class="cat-item">🥗 Nutritionist</div>
-                    <div class="cat-item">💆 Physiotherapist</div>
-                </div>
-            </div>
-
             <div class="category-group">
                 <h4>Technology & IT</h4>
                 <div class="grid-categories">
-                    <div class="cat-item">💻 Software Developer</div>
+                    <div class="cat-item">💻 Software Dev</div>
                     <div class="cat-item">🌐 Web Developer</div>
-                    <div class="cat-item">📱 Mobile App Dev</div>
                     <div class="cat-item">🎨 UI/UX Designer</div>
-                    <div class="cat-item">🔒 Cybersecurity Spec</div>
                     <div class="cat-item">☁️ Cloud Engineer</div>
-                </div>
-            </div>
-
-            <div class="category-group">
-                <h4>Creative & Digital Media</h4>
-                <div class="grid-categories">
-                    <div class="cat-item">🖌️ Graphic Designer</div>
-                    <div class="cat-item">📸 Photographer</div>
-                    <div class="cat-item">🎬 Videographer</div>
-                    <div class="cat-item">✍️ Content Creator</div>
-                    <div class="cat-item">🎞️ Video Editor</div>
-                    <div class="cat-item">🎙️ Voice Actor</div>
-                </div>
-            </div>
-
-            <div class="category-group">
-                <h4>Education & Engineering</h4>
-                <div class="grid-categories">
-                    <div class="cat-item">📚 Tutor / Teacher</div>
-                    <div class="cat-item">🗣️ Language Instructor</div>
-                    <div class="cat-item">🏗️ Civil Engineer</div>
-                    <div class="cat-item">📐 Architect</div>
-                    <div class="cat-item">🛋️ Interior Designer</div>
-                </div>
-            </div>
-
-            <div class="category-group">
-                <h4>Business, Legal & Finance</h4>
-                <div class="grid-categories">
-                    <div class="cat-item">⚖️ Lawyer / Attorney</div>
-                    <div class="cat-item">📊 Accountant</div>
-                    <div class="cat-item">💼 Business Consultant</div>
-                    <div class="cat-item">📑 Tax Advisor</div>
-                    <div class="cat-item">🌐 Translator</div>
                 </div>
             </div>
         </div>
 
-        <!-- 3. JOBS / BOOKINGS TAB -->
+        <!-- 3. JOBS TAB -->
         <div id="tab-jobs" class="section-content">
-            <h3 style="margin-bottom: 14px;">Active Jobs & Bidding</h3>
+            <h3 style="margin-bottom: 14px;">Active Bids & Escrow Projects</h3>
             <div class="card">
-                <h3>Mobile App Redesign (React Native)</h3>
-                <p>Budget: $1,200 • Status: Proposals Open (Bids: 4)</p>
-            </div>
-            <div class="card">
-                <h3>Office Network Security Setup</h3>
-                <p>Budget: $850 • Status: In Progress</p>
-            </div>
-            <div class="card">
-                <h3>International Tax Consultation</h3>
-                <p>Budget: $300 • Status: Open for Bids</p>
+                <h3>Mobile App Architecture Design</h3>
+                <p>Budget: $1,200 • Status: In Progress (Secured in Escrow)</p>
             </div>
         </div>
 
         <!-- 4. MESSAGES TAB -->
         <div id="tab-messages" class="section-content">
-            <h3 style="margin-bottom: 14px;">Secure In-App Chat</h3>
+            <h3 style="margin-bottom: 14px;">Secure Communications</h3>
             <div class="card">
                 <h3>Elena Rostova</h3>
-                <p>Latest: "I have shared the Figma preview link with you."</p>
-            </div>
-            <div class="card">
-                <h3>Dr. Aris Thorne</h3>
-                <p>Latest: "Your appointment is confirmed for tomorrow at 10 AM."</p>
+                <p>Latest: "Figma wireframes updated successfully."</p>
             </div>
         </div>
 
         <!-- 5. PROFILE & SETTINGS TAB -->
         <div id="tab-profile" class="section-content">
             <div class="card" style="text-align: center; background: linear-gradient(135deg, var(--primary), #1e40af); color: #fff;">
-                <h3 style="font-size: 18px;">MD Rayhan Hossain</h3>
-                <p style="color: #e2e8f0; font-size: 12px;">Global Service Administrator & Provider</p>
+                <h3 id="profile-display-name" style="font-size: 18px;">MD Rayhan Hossain</h3>
+                <p id="profile-display-title" style="color: #e2e8f0; font-size: 12px;">Global Service Administrator</p>
             </div>
 
-            <div class="card" onclick="alert('Opening Transaction History: Past deposits, escrow & earnings.')" style="cursor: pointer;">
+            <!-- Verification Status Card -->
+            <div class="card" onclick="openModal('kycModal')" style="cursor: pointer; border-left: 4px solid var(--accent);">
+                <h3>🛡️ ID Verification (KYC)</h3>
+                <p id="kyc-status-text">Status: Verified (Passport / NID Submitted)</p>
+            </div>
+
+            <!-- Profile Customization Card -->
+            <div class="card" onclick="openModal('editProfileModal')" style="cursor: pointer;">
+                <h3>✏️ Customize Profile</h3>
+                <p>Edit your name, professional title, bio & avatar</p>
+            </div>
+
+            <!-- Settings Card -->
+            <div class="card" onclick="openModal('settingsModal')" style="cursor: pointer;">
+                <h3>⚙️ Account Settings</h3>
+                <p>Manage notifications, privacy, region & security preferences</p>
+            </div>
+
+            <div class="card">
                 <h3>📊 Transaction History</h3>
-                <p>View past deposits, payments, escrow & earnings</p>
+                <div id="tx-history-list" style="margin-top: 8px;">
+                    <div class="tx-item">
+                        <div class="tx-info">Deposit via bKash (Bangladesh)<span>Aug 28, 2026</span></div>
+                        <div class="tx-amount success">+$250.00</div>
+                    </div>
+                </div>
             </div>
 
-            <div class="card" onclick="alert('Opening Financial Dashboard: Overview of money flow, stats, and 8% commission analytics.')" style="cursor: pointer;">
-                <h3>💰 Financial Dashboard</h3>
-                <p>Overview of money flow, stats, and earnings</p>
-            </div>
-
-            <div class="card" onclick="alert('Opening Bid Insights & Analytics: Win rate & market pricing analysis.')" style="cursor: pointer;">
-                <h3>📈 Bid Insights</h3>
-                <p>Analytics and performance details on active bids/jobs</p>
-            </div>
-
-            <div class="card" onclick="toggleTheme()" style="cursor: pointer;">
-                <h3>🌓 Theme Switcher</h3>
-                <p>Switch seamlessly between Dark and Light modes</p>
-            </div>
-
-            <div class="card" onclick="alert('Support Center: FAQs, Help line, and customer service ticket creation.')" style="cursor: pointer;">
-                <h3>🛠️ Support & Help</h3>
-                <p>Customer service, FAQs, and technical assistance</p>
-            </div>
-
-            <div class="card" onclick="if(confirm('Are you sure you want to log out securely?')) { alert('Logged out successfully.'); }" style="cursor: pointer; border-color: #ef4444;">
-                <h3 style="color: #ef4444;">🚪 Logout & Secure Sign Out</h3>
-                <p>End current active session safely</p>
+            <div class="card" onclick="if(confirm('Secure sign out?')) { alert('Logged out successfully.'); }" style="cursor: pointer; border-color: var(--danger);">
+                <h3 style="color: var(--danger);">🚪 Logout</h3>
+                <p>End current active secure session</p>
             </div>
         </div>
 
     </div>
 
-    <!-- Bottom Navigation Bar (Fixed 5 Tabs) -->
-    <nav class="bottom-nav">
-        <button class="nav-item active" onclick="switchTab('explore', this)">
-            <span class="icon">🌍</span>Explore
-        </button>
-        <button class="nav-item" onclick="switchTab('industries', this)">
-            <span class="icon">📂</span>Industries
-        </button>
-        <button class="nav-item" onclick="switchTab('jobs', this)">
-            <span class="icon">💼</span>Jobs
-        </button>
-        <button class="nav-item" onclick="switchTab('messages', this)">
-            <span class="icon">💬</span>Messages
-        </button>
-        <button class="nav-item" onclick="switchTab('profile', this)">
-            <span class="icon">👤</span>Profile
-        </button>
-    </nav>
+    <!-- Edit Profile Modal (Profile Customization) -->
+    <div id="editProfileModal" class="modal-overlay">
+        <div class="modal-box">
+            <h2>Customize Profile <button class="close-modal" onclick="closeModal('editProfileModal')">&times;</button></h2>
+            <form onsubmit="handleSaveProfile(event)">
+                <div class="form-group">
+                    <label>Your Full Name</label>
+                    <input type="text" id="inputName" class="form-control" value="MD Rayhan Hossain" required>
+                </div>
+                <div class="form-group">
+                    <label>Professional Title / Tagline</label>
+                    <input type="text" id="inputTitle" class="form-control" value="Global Service Administrator & Provider" required>
+                </div>
+                <div class="form-group">
+                    <label>Short Bio</label>
+                    <textarea id="inputBio" class="form-control" rows="3">Experienced professional specializing in high-end global tech and enterprise solutions.</textarea>
+                </div>
+                <button type="submit" class="btn-submit">Save Profile Changes</button>
+            </form>
+        </div>
+    </div>
 
-    <!-- Script Logic for Interactivity -->
-    <script>
-        function switchTab(tabId, element) {
-            // Hide all tabs
-            document.querySelectorAll('.section-content').forEach(el => {
-                el.classList.remove('active');
-            });
-            // Show target tab
-            document.getElementById('tab-' + tabId).classList.add('active');
+    <!-- ID Verification Modal (KYC) -->
+    <div id="kycModal" class="modal-overlay">
+        <div class="modal-box">
+            <h2>International ID Verification <button class="close-modal" onclick="closeModal('kycModal')">&times;</button></h2>
+            <form onsubmit="handleKycSubmit(event)">
+                <div class="form-group">
+                    <label>Select Document Type</label>
+                    <select class="form-control" id="docType">
+                        <option value="Passport">International Passport</option>
+                        <option value="NID">National ID Card (NID)</option>
+                        <option value="DrivingLicense">Driving License</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Document Identification Number</label>
+                    <input type="text" class="form-control" placeholder="Enter document number" required>
+                </div>
+                <div class="form-group">
+                    <label>Upload Document Scan / Photo</label>
+                    <input type="file" class="form-control" accept="image/*,.pdf" required>
+                </div>
+                <button type="submit" class="btn-submit">Submit Verification Documents</button>
+            </form>
+        </div>
+    </div>
 
-            // Update nav active state
-            document.querySelectorAll('.nav-item').forEach(el => {
-                el.classList.remove('active');
-            });
-            element.classList.add('active');
-        }
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal-overlay">
+        <div class="modal-box">
+            <h2>Account Settings <button class="close-modal" onclick="closeModal('settingsModal')">&times;</button></h2>
+            <form onsubmit="handleSettingsSave(event)">
+                <div class="form-group">
+                    <label>Default Currency & Region</label>
+                    <select class="form-control" id="settingsRegion">
+                        <option value="USD">USD ($) - International</option>
+                        <option value="BDT">BDT (৳) - Bangladesh</option>
+                        <option value="EUR">EUR (€) - Europe</option>
+                        <option value="AED">AED (د.إ) - Middle East</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Email Notifications</label>
+                    <select class="form-control">
+                        <option value="all">All Alerts & Transactions</option>
+                        <option value="important">Important Security Only</option>
+                        <option value="none">Disabled</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Two-Factor Authentication (2FA)</label>
+                    <select class="form-control">
+                        <option value="enabled">Enabled (Recommended)</option>
+                        <option value="disabled">Disabled</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-submit">Save Settings</button>
+            </form>
+        </div>
+    </div>
 
-        function toggleTheme() {
-            document.body.classList.toggle('light-mode');
-            const btn = document.querySelector('.theme-toggle');
-            if(document.body.classList.contains('light-mode')) {
-                btn.textContent = '🌙';
-            } else {
-                btn.textContent = '☀️';
-            }
-        }
-    </script>
-</body>
-</html>
+    <!-- Deposit Modal -->
+    <div id="depositModal" class="modal-overlay">
+        <div class="modal-box">
+            <h2>Deposit Funds <button class="close-modal" onclick="closeModal('depositModal')">&times;</button></h2>
+            <form onsubmit="handleDeposit(event)">
+                <div class="form-group">
+                    <label>Select Region & Currency</label>
+                    <select class="form-control" id="depositRegion" onchange="updateDepositCurrencies()">
+                        <option value="bd">Bangladesh (BDT - bKash / Nagad / Bank)</option>
+                        <option value="eu">Europe (EUR - SEPA / Credit Card)</option>
+                        <option value="me">Middle East (AED/SAR - Local Gateway)</option>
+                        <option value="us">Global / International (USD - Card)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Deposit Amount ($ USD) [Min: $10, Max: $9,999]</label>
+                    <input type="number" id="depositAmount" class="form-control" placeholder="Enter amount ($10 - $9,999)" min="10" max="9999" required>
+                </div>
+                <div class="form-group">
+                    <label>Payment Method</label>
+                    <select class="form-control" id="depositMethod">
+                        <option value="bkash">bKash / Nagad / Rocket</option>
+                        <option value="bank">Direct Bank Transfer</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-submit">Proceed Secure Deposit</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Withdraw Modal -->
+    <div id="withdrawModal" class="modal-overlay">
+        <div class="modal-box">
+            <h2>Request Withdrawal <button class="close-modal" onclick="closeModal('withdrawModal')">&times;</button></h2>
+            <form onsubmit="handleWithdraw(event)">
+                <div class="form-group">
+                    <label>Select Payout Region</label>
+                    <select class="form-control">
+                        <option value="bd">Bangladesh (bKash / Local Bank)</option>
+                        <option value="eu">Europe (SEPA Bank Transfer)</option>
+                        <option value="me">Middle East (Direct Bank Payout)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Withdrawal Amount ($ USD) [Min: $25, Max: $1,000]</label>
+                    <input type="number" id="withdrawAmount" class="form-control" placeholder="Enter amount ($25 - $1,000)" min="25" max="1000" required>
+                </div>
+                <div class="form-group">
+                    <label>Account / Wallet Number</label>
+                    <input type="text" class="form-control" placeholder="Enter account details or phone number" required>
+              
