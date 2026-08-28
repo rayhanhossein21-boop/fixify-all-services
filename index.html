@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fixify - All Services, One Place</title>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: #131b2e;
+            --text-color: #ffffff;
+            --text-muted: #94a3b8;
+            --primary: #2563eb;
+            --accent: #10b981;
+            --border: #1e293b;
+        }
+        .light-mode {
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-color: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-color); padding-bottom: 70px; transition: 0.3s; }
+        .app-container { max-width: 480px; margin: 0 auto; min-height: 100vh; position: relative; border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
+        
+        /* Header */
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: var(--card-bg); border-bottom: 1px solid var(--border); }
+        .logo-area { display: flex; align-items: center; gap: 10px; }
+        .logo-shield { width: 32px; height: 32px; background: var(--primary); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; }
+        .app-title h1 { font-size: 16px; font-weight: bold; }
+        .app-title span { font-size: 10px; color: var(--text-muted); }
+        .header-actions { display: flex; gap: 10px; align-items: center; }
+        .theme-btn { background: none; border: none; font-size: 18px; cursor: pointer; color: var(--text-color); }
+
+        /* Content Sections */
+        .section-content { display: none; padding: 15px; }
+        .section-content.active { display: block; }
+        
+        /* Cards */
+        .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 15px; margin-bottom: 15px; }
+        .card h3 { font-size: 15px; margin-bottom: 8px; color: var(--text-color); }
+        .card p { font-size: 13px; color: var(--text-muted); }
+
+        /* Bottom Nav */
+        .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: var(--card-bg); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 10px 0; z-index: 1000; }
+        .nav-item { background: none; border: none; color: var(--text-muted); font-size: 11px; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; }
+        .nav-item.active { color: var(--primary); font-weight: bold; }
+        .nav-item span.icon { font-size: 18px; }
+
+        /* Ledger / Financial item */
+        .ledger-box { background: linear-gradient(135deg, #1e3a8a, #065f46); color: white; border-radius: 12px; padding: 15px; margin-bottom: 15px; }
+        .ledger-row { display: flex; justify-content: space-between; margin-top: 10px; font-size: 13px; }
+    </style>
+</head>
+<body>
+
+<div class="app-container" id="appContainer">
+    <!-- Header -->
+    <div class="header">
+        <div class="logo-area">
+            <div class="logo-shield">FX</div>
+            <div class="app-title">
+                <h1>Fixify <span style="background:var(--primary); padding:1px 4px; border-radius:4px;">GLOBAL</span></h1>
+                <span>All Services. One Place.</span>
+            </div>
+        </div>
+        <div class="header-actions">
+            <span style="font-size: 12px; font-weight: bold; color: var(--accent);">8% Fee</span>
+            <button class="theme-btn" onclick="toggleTheme()">☀️</button>
+        </div>
+    </div>
+
+    <!-- Tab 1: Explore / Home -->
+    <div id="tab-explore" class="section-content active">
+        <div class="card" style="background: linear-gradient(90deg, #1d4ed8, #0e7490); color: white;">
+            <h3>Hire Verified Pros Globally</h3>
+            <p style="color: #e2e8f0; margin-top: 5px;">Access over 9+ global industries with escrow security protection.</p>
+        </div>
+        <h3 style="margin-bottom: 10px; font-size: 14px;">Global Industry Sectors</h3>
+        <div class="card">
+            <h3>Home & Maintenance</h3>
+            <p>Electricians, Plumbers, Cleaners, HVAC & Handymen</p>
+        </div>
+        <div class="card">
+            <h3>Technology & IT</h3>
+            <p>Software, Web, Mobile, UI/UX & Cloud Specialists</p>
+        </div>
+        <div class="card">
+            <h3>Creative & Digital Media</h3>
+            <p>Graphic Designers, Photographers, Videographers & Animators</p>
+        </div>
+    </div>
+
+    <!-- Tab 2: Industries (Categories) -->
+    <div id="tab-industries" class="section-content">
+        <h3 style="margin-bottom: 12px;">All Categories & Professions</h3>
+        <div class="card"><h3>Health, Wellness & Fitness</h3><p>Doctors, Therapists, Nutritionists & Trainers</p></div>
+        <div class="card"><h3>Business, Legal & Finance</h3><p>Lawyers, Accountants, Tax Advisors & Consultants</p></div>
+        <div class="card"><h3>Engineering & Construction</h3><p>Architects, Civil Engineers & Interior Designers</p></div>
+    </div>
+
+    <!-- Tab 3: Jobs & Bookings -->
+    <div id="tab-jobs" class="section-content">
+        <h3 style="margin-bottom: 12px;">International Jobs & Bids</h3>
+        <div class="card">
+            <h3>Need High-End Mobile UI/UX Design</h3>
+            <p>Budget: $850.00 (Fixed) • 1 Proposal Received</p>
+            <button style="margin-top: 10px; padding: 6px 12px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer;">View Proposals</button>
+        </div>
+    </div>
+
+    <!-- Tab 4: Messages -->
+    <div id="tab-messages" class="section-content">
+        <h3 style="margin-bottom: 12px;">Secure In-App Chat</h3>
+        <div class="card">
+            <h3>Elena Rostova (UI/UX Designer)</h3>
+            <p>"I have built 12+ fintech apps in Figma. Check my portfolio!"</p>
+        </div>
+    </div>
+
+    <!-- Tab 5: Profile & Settings Dashboard -->
+    <div id="tab-profile" class="section-content">
+        <div class="ledger-box">
+            <div style="font-size: 12px; opacity: 0.9;">FINANCIAL ACTIVITY LEDGER (8% Fee Active)</div>
+            <div class="ledger-row">
+                <div>Total Deposits: <b>$1,700.00</b></div>
+                <div>Escrow: <b>$130.00</b></div>
+            </div>
+        </div>
+
+        <h3 style="margin-bottom: 10px; font-size: 14px;">Dashboard & Management</h3>
+        <div class="card" onclick="alert('Opening Transaction History...')" style="cursor: pointer;">
+            <h3>📊 Transaction History</h3>
+            <p>View past deposits, payments, escrow & earnings</p>
+        </div>
+        <div class="card" onclick="alert('Opening Financial Dashboard...')" style="cursor: pointer;">
+            <h3>💰 Financial Dashboard</h3>
+            <p>Overview of money flow, stats, and earnings</p>
+        </div>
+        <div class="card" onclick="alert('Opening Bid Insights...')" style="cursor: pointer;">
+            <h3>📈 Bid Insights & Analytics</h3>
+            <p>69% win rate & market pricing analysis</p>
+        </div>
+        <div class="card" onclick="alert('Logging out securely...')" style="cursor: pointer; color: #ef4444;">
+            <h3>🚪 Logout & Secure Sign Out</h3>
+            <p>End current session safely</p>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation Bar (Fixed 5 Tabs) -->
+    <div class="bottom-nav">
+        <button class="nav-item active" onclick="switchTab('explore', this)">
+            <span class="icon">🌍</span>Explore
+        </button>
+        <button class="nav-item" onclick="switchTab('industries', this)">
+            <span class="icon">🗂️</span>Industries
+        </button>
+        <button class="nav-item" onclick="switchTab('jobs', this)">
+            <span class="icon">💼</span>Jobs
+        </button>
+        <button class="nav-item" onclick="switchTab('messages', this)">
+            <span class="icon">💬</span>Messages
+        </button>
+        <button class="nav-item" onclick="switchTab('profile', this)">
+            <span class="icon">👤</span>Profile
+        </button>
+    </div>
+</div>
+
+<script>
+    // Tab Switching Logic
+    function switchTab(tabId, element) {
+        document.querySelectorAll('.section-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        
+        document.getElementById('tab-' + tabId).classList.add('active');
+        element.classList.add('active');
+    }
+
+    // Theme Toggle Logic
+    function toggleTheme() {
+        document.body.classList.toggle('light-mode');
+    }
+</script>
+
+</body>
+</html>
