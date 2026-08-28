@@ -6,156 +6,264 @@
     <title>Fixify - All Services, One Place</title>
     <style>
         :root {
-            --bg-color: #0b0f19;
-            --card-bg: #131b2e;
-            --text-color: #ffffff;
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
             --text-muted: #94a3b8;
-            --primary: #2563eb;
+            --primary: #3b82f6;
             --accent: #10b981;
-            --border: #1e293b;
+            --border: #334155;
         }
-        .light-mode {
+        body.light-mode {
             --bg-color: #f8fafc;
             --card-bg: #ffffff;
             --text-color: #0f172a;
             --text-muted: #64748b;
+            --primary: #2563eb;
+            --accent: #059669;
             --border: #e2e8f0;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-color); padding-bottom: 70px; transition: 0.3s; }
-        .app-container { max-width: 480px; margin: 0 auto; min-height: 100vh; position: relative; border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-color); min-height: 100vh; display: flex; flex-direction: column; transition: background 0.3s, color 0.3s; }
         
         /* Header */
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: var(--card-bg); border-bottom: 1px solid var(--border); }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background-color: var(--card-bg); border-bottom: 1px solid var(--border); }
         .logo-area { display: flex; align-items: center; gap: 10px; }
-        .logo-shield { width: 32px; height: 32px; background: var(--primary); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; }
-        .app-title h1 { font-size: 16px; font-weight: bold; }
-        .app-title span { font-size: 10px; color: var(--text-muted); }
-        .header-actions { display: flex; gap: 10px; align-items: center; }
-        .theme-btn { background: none; border: none; font-size: 18px; cursor: pointer; color: var(--text-color); }
+        .logo-icon { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: #fff; padding: 8px 12px; font-weight: bold; border-radius: 8px; font-size: 16px; }
+        .logo-text h1 { font-size: 18px; font-weight: 700; }
+        .logo-text p { font-size: 11px; color: var(--text-muted); }
+        .header-right { display: flex; align-items: center; gap: 12px; }
+        .fee-badge { background: rgba(16, 185, 129, 0.1); color: var(--accent); padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; }
+        .theme-toggle { background: none; border: none; font-size: 18px; cursor: pointer; }
 
-        /* Content Sections */
-        .section-content { display: none; padding: 15px; }
+        /* Main Content Container */
+        .main-container { flex: 1; padding: 20px; padding-bottom: 80px; max-width: 600px; width: 100%; margin: 0 auto; }
+        .section-content { display: none; }
         .section-content.active { display: block; }
-        
-        /* Cards */
-        .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 15px; margin-bottom: 15px; }
-        .card h3 { font-size: 15px; margin-bottom: 8px; color: var(--text-color); }
+
+        /* Cards & UI elements */
+        .card { background-color: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .card h3 { font-size: 16px; margin-bottom: 6px; }
         .card p { font-size: 13px; color: var(--text-muted); }
 
-        /* Bottom Nav */
-        .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: var(--card-bg); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 10px 0; z-index: 1000; }
-        .nav-item { background: none; border: none; color: var(--text-muted); font-size: 11px; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; }
-        .nav-item.active { color: var(--primary); font-weight: bold; }
-        .nav-item span.icon { font-size: 18px; }
+        .finance-card { background: linear-gradient(135deg, #065f46, #047857); color: #fff; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+        .finance-card h4 { font-size: 12px; opacity: 0.9; text-transform: uppercase; margin-bottom: 8px; }
+        .finance-row { display: flex; justify-content: space-between; font-size: 18px; font-weight: bold; }
 
-        /* Ledger / Financial item */
-        .ledger-box { background: linear-gradient(135deg, #1e3a8a, #065f46); color: white; border-radius: 12px; padding: 15px; margin-bottom: 15px; }
-        .ledger-row { display: flex; justify-content: space-between; margin-top: 10px; font-size: 13px; }
+        .search-bar { width: 100%; padding: 12px 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); color: var(--text-color); margin-bottom: 16px; font-size: 14px; }
+
+        .category-group { margin-bottom: 18px; }
+        .category-group h4 { font-size: 13px; color: var(--primary); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .grid-categories { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .cat-item { background: var(--card-bg); border: 1px solid var(--border); padding: 12px; border-radius: 10px; text-align: center; cursor: pointer; font-size: 12px; font-weight: 600; transition: 0.2s; }
+        .cat-item:hover { border-color: var(--primary); background: rgba(59, 130, 246, 0.05); }
+
+        /* Bottom Nav */
+        nav.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background-color: var(--card-bg); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 10px 0; z-index: 100; }
+        .nav-item { background: none; border: none; display: flex; flex-direction: column; align-items: center; color: var(--text-muted); font-size: 11px; cursor: pointer; }
+        .nav-item.active { color: var(--primary); font-weight: 600; }
+        .nav-item span.icon { font-size: 18px; margin-bottom: 2px; }
     </style>
 </head>
 <body>
 
-<div class="app-container" id="appContainer">
     <!-- Header -->
-    <div class="header">
+    <header>
         <div class="logo-area">
-            <div class="logo-shield">FX</div>
-            <div class="app-title">
-                <h1>Fixify <span style="background:var(--primary); padding:1px 4px; border-radius:4px;">GLOBAL</span></h1>
-                <span>All Services. One Place.</span>
+            <div class="logo-icon">FX</div>
+            <div class="logo-text">
+                <h1>Fixify</h1>
+                <p>All Services. One Place.</p>
             </div>
         </div>
-        <div class="header-actions">
-            <span style="font-size: 12px; font-weight: bold; color: var(--accent);">8% Fee</span>
-            <button class="theme-btn" onclick="toggleTheme()">☀️</button>
+        <div class="header-right">
+            <span class="fee-badge">8% Fee Active</span>
+            <button class="theme-toggle" onclick="toggleTheme()">☀️</button>
         </div>
-    </div>
+    </header>
 
-    <!-- Tab 1: Explore / Home -->
-    <div id="tab-explore" class="section-content active">
-        <div class="card" style="background: linear-gradient(90deg, #1d4ed8, #0e7490); color: white;">
-            <h3>Hire Verified Pros Globally</h3>
-            <p style="color: #e2e8f0; margin-top: 5px;">Access over 9+ global industries with escrow security protection.</p>
-        </div>
-        <h3 style="margin-bottom: 10px; font-size: 14px;">Global Industry Sectors</h3>
-        <div class="card">
-            <h3>Home & Maintenance</h3>
-            <p>Electricians, Plumbers, Cleaners, HVAC & Handymen</p>
-        </div>
-        <div class="card">
-            <h3>Technology & IT</h3>
-            <p>Software, Web, Mobile, UI/UX & Cloud Specialists</p>
-        </div>
-        <div class="card">
-            <h3>Creative & Digital Media</h3>
-            <p>Graphic Designers, Photographers, Videographers & Animators</p>
-        </div>
-    </div>
+    <!-- Main Container for Tabs -->
+    <div class="main-container">
 
-    <!-- Tab 2: Industries (Categories) -->
-    <div id="tab-industries" class="section-content">
-        <h3 style="margin-bottom: 12px;">All Categories & Professions</h3>
-        <div class="card"><h3>Health, Wellness & Fitness</h3><p>Doctors, Therapists, Nutritionists & Trainers</p></div>
-        <div class="card"><h3>Business, Legal & Finance</h3><p>Lawyers, Accountants, Tax Advisors & Consultants</p></div>
-        <div class="card"><h3>Engineering & Construction</h3><p>Architects, Civil Engineers & Interior Designers</p></div>
-    </div>
-
-    <!-- Tab 3: Jobs & Bookings -->
-    <div id="tab-jobs" class="section-content">
-        <h3 style="margin-bottom: 12px;">International Jobs & Bids</h3>
-        <div class="card">
-            <h3>Need High-End Mobile UI/UX Design</h3>
-            <p>Budget: $850.00 (Fixed) • 1 Proposal Received</p>
-            <button style="margin-top: 10px; padding: 6px 12px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer;">View Proposals</button>
-        </div>
-    </div>
-
-    <!-- Tab 4: Messages -->
-    <div id="tab-messages" class="section-content">
-        <h3 style="margin-bottom: 12px;">Secure In-App Chat</h3>
-        <div class="card">
-            <h3>Elena Rostova (UI/UX Designer)</h3>
-            <p>"I have built 12+ fintech apps in Figma. Check my portfolio!"</p>
-        </div>
-    </div>
-
-    <!-- Tab 5: Profile & Settings Dashboard -->
-    <div id="tab-profile" class="section-content">
-        <div class="ledger-box">
-            <div style="font-size: 12px; opacity: 0.9;">FINANCIAL ACTIVITY LEDGER (8% Fee Active)</div>
-            <div class="ledger-row">
-                <div>Total Deposits: <b>$1,700.00</b></div>
-                <div>Escrow: <b>$130.00</b></div>
+        <!-- 1. EXPLORE / HOME TAB -->
+        <div id="tab-explore" class="section-content active">
+            <input type="text" class="search-bar" placeholder="Search global services (e.g., Electrician, Doctor, Lawyer)...">
+            <div class="finance-card">
+                <h4>Financial Activity Ledger (8% Fee Active)</h4>
+                <div class="finance-row">
+                    <span>Total Deposits: $1,700.00</span>
+                    <span>Escrow: $130.00</span>
+                </div>
+            </div>
+            <h3 style="margin-bottom: 10px; font-size: 15px;">Featured Global Professionals</h3>
+            <div class="card">
+                <h3>Elena Rostova (UI/UX Designer)</h3>
+                <p>"I have built 12+ fintech apps in Figma. Check my portfolio!"</p>
+            </div>
+            <div class="card">
+                <h3>Dr. Aris Thorne (Psychologist & Therapist)</h3>
+                <p>Available for online international consultations and mental wellness sessions.</p>
+            </div>
+            <div class="card">
+                <h3>Marcus Vance (Senior Electrician & HVAC Tech)</h3>
+                <p>Available for emergency domestic & commercial repair services.</p>
             </div>
         </div>
 
-        <h3 style="margin-bottom: 10px; font-size: 14px;">Dashboard & Management</h3>
-        <div class="card" onclick="alert('Opening Transaction History...')" style="cursor: pointer;">
-            <h3>📊 Transaction History</h3>
-            <p>View past deposits, payments, escrow & earnings</p>
+        <!-- 2. INDUSTRIES / CATEGORIES TAB (Expanded with all professions) -->
+        <div id="tab-industries" class="section-content">
+            <h3 style="margin-bottom: 14px;">All Global Professions & Categories</h3>
+            
+            <div class="category-group">
+                <h4>Home & Maintenance</h4>
+                <div class="grid-categories">
+                    <div class="cat-item">⚡ Electrician</div>
+                    <div class="cat-item">🔧 Plumber</div>
+                    <div class="cat-item">🧹 Cleaner</div>
+                    <div class="cat-item">🪚 Carpenter</div>
+                    <div class="cat-item">🎨 Painter</div>
+                    <div class="cat-item">❄️ AC Technician</div>
+                    <div class="cat-item">🛠️ Appliance Repair</div>
+                    <div class="cat-item">🔨 Handyman</div>
+                </div>
+            </div>
+
+            <div class="category-group">
+                <h4>Health, Wellness & Fitness</h4>
+                <div class="grid-categories">
+                    <div class="cat-item">🩺 Doctor</div>
+                    <div class="cat-item">🧠 Psychologist</div>
+                    <div class="cat-item">🧘 Yoga Instructor</div>
+                    <div class="cat-item">💪 Fitness Trainer</div>
+                    <div class="cat-item">🥗 Nutritionist</div>
+                    <div class="cat-item">💆 Physiotherapist</div>
+                </div>
+            </div>
+
+            <div class="category-group">
+                <h4>Technology & IT</h4>
+                <div class="grid-categories">
+                    <div class="cat-item">💻 Software Developer</div>
+                    <div class="cat-item">🌐 Web Developer</div>
+                    <div class="cat-item">📱 Mobile App Dev</div>
+                    <div class="cat-item">🎨 UI/UX Designer</div>
+                    <div class="cat-item">🔒 Cybersecurity Spec</div>
+                    <div class="cat-item">☁️ Cloud Engineer</div>
+                </div>
+            </div>
+
+            <div class="category-group">
+                <h4>Creative & Digital Media</h4>
+                <div class="grid-categories">
+                    <div class="cat-item">🖌️ Graphic Designer</div>
+                    <div class="cat-item">📸 Photographer</div>
+                    <div class="cat-item">🎬 Videographer</div>
+                    <div class="cat-item">✍️ Content Creator</div>
+                    <div class="cat-item">🎞️ Video Editor</div>
+                    <div class="cat-item">🎙️ Voice Actor</div>
+                </div>
+            </div>
+
+            <div class="category-group">
+                <h4>Education & Engineering</h4>
+                <div class="grid-categories">
+                    <div class="cat-item">📚 Tutor / Teacher</div>
+                    <div class="cat-item">🗣️ Language Instructor</div>
+                    <div class="cat-item">🏗️ Civil Engineer</div>
+                    <div class="cat-item">📐 Architect</div>
+                    <div class="cat-item">🛋️ Interior Designer</div>
+                </div>
+            </div>
+
+            <div class="category-group">
+                <h4>Business, Legal & Finance</h4>
+                <div class="grid-categories">
+                    <div class="cat-item">⚖️ Lawyer / Attorney</div>
+                    <div class="cat-item">📊 Accountant</div>
+                    <div class="cat-item">💼 Business Consultant</div>
+                    <div class="cat-item">📑 Tax Advisor</div>
+                    <div class="cat-item">🌐 Translator</div>
+                </div>
+            </div>
         </div>
-        <div class="card" onclick="alert('Opening Financial Dashboard...')" style="cursor: pointer;">
-            <h3>💰 Financial Dashboard</h3>
-            <p>Overview of money flow, stats, and earnings</p>
+
+        <!-- 3. JOBS / BOOKINGS TAB -->
+        <div id="tab-jobs" class="section-content">
+            <h3 style="margin-bottom: 14px;">Active Jobs & Bidding</h3>
+            <div class="card">
+                <h3>Mobile App Redesign (React Native)</h3>
+                <p>Budget: $1,200 • Status: Proposals Open (Bids: 4)</p>
+            </div>
+            <div class="card">
+                <h3>Office Network Security Setup</h3>
+                <p>Budget: $850 • Status: In Progress</p>
+            </div>
+            <div class="card">
+                <h3>International Tax Consultation</h3>
+                <p>Budget: $300 • Status: Open for Bids</p>
+            </div>
         </div>
-        <div class="card" onclick="alert('Opening Bid Insights...')" style="cursor: pointer;">
-            <h3>📈 Bid Insights & Analytics</h3>
-            <p>69% win rate & market pricing analysis</p>
+
+        <!-- 4. MESSAGES TAB -->
+        <div id="tab-messages" class="section-content">
+            <h3 style="margin-bottom: 14px;">Secure In-App Chat</h3>
+            <div class="card">
+                <h3>Elena Rostova</h3>
+                <p>Latest: "I have shared the Figma preview link with you."</p>
+            </div>
+            <div class="card">
+                <h3>Dr. Aris Thorne</h3>
+                <p>Latest: "Your appointment is confirmed for tomorrow at 10 AM."</p>
+            </div>
         </div>
-        <div class="card" onclick="alert('Logging out securely...')" style="cursor: pointer; color: #ef4444;">
-            <h3>🚪 Logout & Secure Sign Out</h3>
-            <p>End current session safely</p>
+
+        <!-- 5. PROFILE & SETTINGS TAB -->
+        <div id="tab-profile" class="section-content">
+            <div class="card" style="text-align: center; background: linear-gradient(135deg, var(--primary), #1e40af); color: #fff;">
+                <h3 style="font-size: 18px;">MD Rayhan Hossain</h3>
+                <p style="color: #e2e8f0; font-size: 12px;">Global Service Administrator & Provider</p>
+            </div>
+
+            <div class="card" onclick="alert('Opening Transaction History: Past deposits, escrow & earnings.')" style="cursor: pointer;">
+                <h3>📊 Transaction History</h3>
+                <p>View past deposits, payments, escrow & earnings</p>
+            </div>
+
+            <div class="card" onclick="alert('Opening Financial Dashboard: Overview of money flow, stats, and 8% commission analytics.')" style="cursor: pointer;">
+                <h3>💰 Financial Dashboard</h3>
+                <p>Overview of money flow, stats, and earnings</p>
+            </div>
+
+            <div class="card" onclick="alert('Opening Bid Insights & Analytics: Win rate & market pricing analysis.')" style="cursor: pointer;">
+                <h3>📈 Bid Insights</h3>
+                <p>Analytics and performance details on active bids/jobs</p>
+            </div>
+
+            <div class="card" onclick="toggleTheme()" style="cursor: pointer;">
+                <h3>🌓 Theme Switcher</h3>
+                <p>Switch seamlessly between Dark and Light modes</p>
+            </div>
+
+            <div class="card" onclick="alert('Support Center: FAQs, Help line, and customer service ticket creation.')" style="cursor: pointer;">
+                <h3>🛠️ Support & Help</h3>
+                <p>Customer service, FAQs, and technical assistance</p>
+            </div>
+
+            <div class="card" onclick="if(confirm('Are you sure you want to log out securely?')) { alert('Logged out successfully.'); }" style="cursor: pointer; border-color: #ef4444;">
+                <h3 style="color: #ef4444;">🚪 Logout & Secure Sign Out</h3>
+                <p>End current active session safely</p>
+            </div>
         </div>
+
     </div>
 
     <!-- Bottom Navigation Bar (Fixed 5 Tabs) -->
-    <div class="bottom-nav">
+    <nav class="bottom-nav">
         <button class="nav-item active" onclick="switchTab('explore', this)">
             <span class="icon">🌍</span>Explore
         </button>
         <button class="nav-item" onclick="switchTab('industries', this)">
-            <span class="icon">🗂️</span>Industries
+            <span class="icon">📂</span>Industries
         </button>
         <button class="nav-item" onclick="switchTab('jobs', this)">
             <span class="icon">💼</span>Jobs
@@ -166,24 +274,34 @@
         <button class="nav-item" onclick="switchTab('profile', this)">
             <span class="icon">👤</span>Profile
         </button>
-    </div>
-</div>
+    </nav>
 
-<script>
-    // Tab Switching Logic
-    function switchTab(tabId, element) {
-        document.querySelectorAll('.section-content').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-        
-        document.getElementById('tab-' + tabId).classList.add('active');
-        element.classList.add('active');
-    }
+    <!-- Script Logic for Interactivity -->
+    <script>
+        function switchTab(tabId, element) {
+            // Hide all tabs
+            document.querySelectorAll('.section-content').forEach(el => {
+                el.classList.remove('active');
+            });
+            // Show target tab
+            document.getElementById('tab-' + tabId).classList.add('active');
 
-    // Theme Toggle Logic
-    function toggleTheme() {
-        document.body.classList.toggle('light-mode');
-    }
-</script>
+            // Update nav active state
+            document.querySelectorAll('.nav-item').forEach(el => {
+                el.classList.remove('active');
+            });
+            element.classList.add('active');
+        }
 
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+            const btn = document.querySelector('.theme-toggle');
+            if(document.body.classList.contains('light-mode')) {
+                btn.textContent = '🌙';
+            } else {
+                btn.textContent = '☀️';
+            }
+        }
+    </script>
 </body>
 </html>
